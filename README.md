@@ -1,4 +1,4 @@
-# Laboratoire 1
+# Application piscine (serveur pour raspberry)
 
 Le projet utilise python 3.10.0
 
