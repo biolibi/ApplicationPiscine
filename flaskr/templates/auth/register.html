@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Création de compte</title>
+</head>
+<body>
+{% extends 'base.html' %}
+{% block header %}
+<h1>Enregistrement</h1>
+{% endblock %}
+{% block content %}
+{% if error %}
+    <p class="error"><strong>Error:</strong> {{ error }}</p>
+{% endif %}
+<form action="{{ url_for('auth.register') }}" method="post">
+    <label for="username">Nom</label>
+    <input type="text" name="username" id="username" value="{{ request.form['username'] if request.form['username'] else '' }}" required>
+    <label for="password">Mot de passe</label>
+    <input type="password" name="password" id="password" required>
+    <input type="submit" value="Créer un compte">
+
+</form>
+<p>Déja enregistrer? <a href="{{ url_for('auth.login') }}">Connexion</a></p>
+{% endblock %}
+</body>
+</html>

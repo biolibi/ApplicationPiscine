@@ -1,0 +1,24 @@
+.cssHoroscope {
+    background-color: #f2f2f2;
+    padding: 20px;
+    margin: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px #000;
+}
+.logout {
+    position: absolute;
+    top: 0;
+    right: 15px;
+    margin: 20px;
+}
+.retour {
+    position: absolute;
+    top: 0;
+    left: 15px;
+    margin: 20px;
+}
+.horoscopeDuJour {
+    font-size: 20px;
+    font-weight: bold;
+    color: #481ED1;
+}

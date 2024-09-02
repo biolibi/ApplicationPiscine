@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% block head %}
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    {% block styles %}
+        <!-- Bootstrap CSS -->
+        {{ bootstrap.load_css() }}
+        <!-- Custom CSS for layout adjustments -->
+        <style>
+            html, body {
+                height: 100%;
+                margin: 0px;
+                padding: 0px;
+                display: flex;
+                flex-direction: column;
+            }
+            .container-fluid {
+                flex: 1;
+                display: flex;
+                flex-direction: row;
+                margin: 0px;
+                padding: 0px;
+            }
+            #sidebar {
+                position: sticky;
+                top: 0;
+                bottom: 0;
+                height: 100vh;
+                overflow-y: auto;
+                background-color: #212121;
+            }
+            main {
+                flex: 1;
+            }
+            .nav-link {
+                color: white;
+            }
+        </style>
+    {% endblock %}
+
+    <title>Application piscine</title>
+    {% endblock %}
+</head>
+<body>
+    <div class="container-fluid">
+        <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar">
+            <div class="sidebar-sticky">
+                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                    <span style="color:white">Menu</span>
+                </h6>
+            </div>
+
+            <div class="position-sticky">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="historique">
+                             <img src="{{ url_for('static', filename='bootstrap-icons-1.11.3/0-circle-fill.svg')  }}">
+                            Historique des analyses
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <img src="{{ url_for('static', filename='bootstrap-icons-1.11.3/0-circle-fill.svg')  }}">
+                            Effectuer un test
+                        </a>
+                    </li>
+                     <li class="nav-item">
+                        <a class="nav-link" href="#">
+                             <img src="{{ url_for('static', filename='bootstrap-icons-1.11.3/0-circle-fill.svg')  }}">
+                            Réaliser une injection
+                        </a>
+                    </li>
+                     <li class="nav-item">
+                        <a class="nav-link" href="#">
+                             <img src="{{ url_for('static', filename='bootstrap-icons-1.11.3/0-circle-fill.svg')  }}">
+                            Voir état de la caméra
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main content -->
+        <main role="main" class="col-md-9 ms-sm-auto col-lg-10 px-4">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    {% block scripts %}
+        <!-- Optional JavaScript -->
+        {{ bootstrap.load_js() }}
+    {% endblock %}
+</body>
+</html>
+
