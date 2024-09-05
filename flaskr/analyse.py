@@ -11,8 +11,6 @@ bp = Blueprint('analyse', __name__, url_prefix='/accueil/analyse')
 
 def analyse():
     img = cv2.imread('image/img.png')
-    #convert the image to hsv
-    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
 
 
