@@ -30,6 +30,10 @@ def create_app(test_config=None):
     from . import historiqueAnalyse
     app.register_blueprint(historiqueAnalyse.bp)
 
+    from . import testAnalyse
+    app.register_blueprint(testAnalyse.bp)
+    
+
 
     #scheduler = BackgroundScheduler()
     #scheduler.add_job()
