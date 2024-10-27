@@ -4,10 +4,13 @@ from flask_pymongo import PyMongo
 from flask_bootstrap import Bootstrap5
 from apscheduler.schedulers.background import BackgroundScheduler
 from flaskr.taskjob import task_job
+import RPi.GPIO as GPIO
 
 
 # declaration global de mongo pour pouvoir l'utiliser dans les autres fichiers
 mongo = PyMongo()
+gpio = GPIO
+gpio.setmode(GPIO.BCM)
 
 def create_app(test_config=None):
     # create and configure the app
@@ -32,6 +35,11 @@ def create_app(test_config=None):
 
     from . import testAnalyse
     app.register_blueprint(testAnalyse.bp)
+    
+    from . import stream
+    app.register_blueprint(stream.bp)
+
+
     
 
 
