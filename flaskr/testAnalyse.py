@@ -218,6 +218,7 @@ def analyseImage():
     return mongo.db.analyses.find_one(sort=[('_id', -1)])['_id']
     
 @bp.route('/analyse', methods=['POST'])
+@login_required
 def analyse():
     test = circulationPompe()
     test1 = testChlorine()
