@@ -1,7 +1,7 @@
 import functools
 import uuid
 
-from flask import (Blueprint, flash, g, redirect, render_template, request, session, url_for)
+from flask import (Blueprint, flash, g, redirect, render_template, request, session, url_for,jsonify)
 from werkzeug.security import check_password_hash, generate_password_hash
 from . import mongo
 
@@ -12,9 +12,37 @@ bp = Blueprint('auth', __name__, url_prefix='/auth')
 @bp.route('/register', methods=('GET', 'POST'))
 def register():
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
+
         error = None
+
+        if request.is_json:
+            data = request.get_json()  # Récupère les données JSON de la requête
+            username = data.get('username')  # Utilisez get() pour éviter les KeyError
+            password = data.get('password')
+
+            if not username:
+                error = 'Un username est nécessaire.'
+            elif not password:
+                error = 'Un mot de passe est nécessaire.'
+
+            # si il n'y a pas d'erreur, on connecte l'utilisateur
+            if error is None:
+                try:
+                    user = mongo.db.users.find_one({'username': username})
+                    if user is not None:
+                        flash('L\'utilisateur {} existe déjà.'.format(username))
+                    else:
+                        userID = uuid.uuid4()
+                        mongo.db.users.insert_one({'username': username, 'password': generate_password_hash(password), 'userID': str(userID)})
+                        return jsonify({"message": "Utilisateur créé"}), 200
+                except:
+                    error = 'Erreur lors de la création de l\'utilisateur'
+                    return jsonify({'error': error}),401
+            else:
+                return jsonify({'error': error}),401
+        else:
+            username = request.form['username']
+            password = request.form['password']
 
         if not username:
             error = 'Un username est nécessaire.'
@@ -44,11 +72,33 @@ def register():
 @bp.route('/login', methods=('GET', 'POST'))
 def login():
 
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
+    error = None
 
-        error = None
+    if request.method == 'POST':
+        
+        if request.is_json:
+            data = request.get_json()  # Récupère les données JSON de la requête
+            username = data.get('username')  # Utilisez get() pour éviter les KeyError
+            password = data.get('password')
+
+            user = mongo.db.users.find_one({'username': username})
+
+            if user is None:
+                error = 'Cet utilisateur n\'existe pas.'
+            elif not check_password_hash(user['password'], password):
+                error = 'Mot de passe incorrect.'
+
+            # si il n'y a pas d'erreur, on connecte l'utilisateur
+            if error is None:
+                session.clear()
+                session['userID'] = user['userID']
+                return jsonify({"message": "Connexion réussie!"}), 200
+            else:
+
+                return jsonify({'error': error}),401
+        else:
+            username = request.form['username']
+            password = request.form['password']
 
         #vérifie que l'utilisateur existe et que le mot de passe est correct
         user = mongo.db.users.find_one({'username': username})
