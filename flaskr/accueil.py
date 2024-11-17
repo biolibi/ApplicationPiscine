@@ -10,4 +10,4 @@ bp = Blueprint('accueil', __name__, url_prefix='/accueil')
 @login_required
 def pageAccueil():
 
-    return render_template('accueil/pageAccueil.html', user=g.user)
+    return render_template('accueil/pageAccueil.html')
