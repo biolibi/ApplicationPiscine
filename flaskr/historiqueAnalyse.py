@@ -10,7 +10,7 @@ bp = Blueprint('historiqueAnalyse', __name__, url_prefix='/accueil/historique')
 
 def getHistorique(page, limit):
     skip = ((page - 1) * limit)
-    analyses = list(mongo.db.historiqueAnalyse.find({}, {'_id': 0}).sort([('date', -1)]).skip(skip).limit(limit + 1))
+    analyses = list(mongo.db.analyses.find({}, {'_id': 0}).sort([('date', -1)]).skip(skip).limit(limit + 1))
 
     return analyses
 
