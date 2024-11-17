@@ -11,12 +11,13 @@ import RPi.GPIO as GPIO
 mongo = PyMongo()
 gpio = GPIO
 gpio.setmode(GPIO.BCM)
+secretKey = 'sZxfx,fUHu+9fTOm~cRQh{?}b%~T8t'
 
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
-        SECRET_KEY='dev',
+        SECRET_KEY='sZxfx,fUHu+9fTOm~cRQh{?}b%~T8t',
     )
     app.config["MONGO_URI"] = "mongodb://localhost:27017/APdatabase"
     mongo.init_app(app)

@@ -7,6 +7,7 @@ from . import mongo, gpio
 import cv2
 import subprocess
 import os
+import numpy as np
 
 
 bp = Blueprint('testAnalyse', __name__, url_prefix='/accueil/test')
@@ -14,63 +15,92 @@ bp = Blueprint('testAnalyse', __name__, url_prefix='/accueil/test')
 def circulationPompe():
     
     #PAS RAPPORT AVEC LE TEST
-    gpio.setup(2, gpio.OUT)
-    gpio.output(2, True)
-    sleep(5)
+    #gpio.setup(2, gpio.OUT)
+    #gpio.output(2, True)
+    #sleep(5)
 
     #valve alimentation flacon en eau
     gpio.setup(6, gpio.OUT)
-    gpio.output(6, True)
-    sleep(2)
     gpio.output(6, False)
+    #sleep(60)
+    #gpio.output(6, False)
+    gpio.setup(13, gpio.OUT)
+    gpio.output(13, False)
+    sleep(6)
+    gpio.output(6, True)
+    gpio.output(13, True)
 
     return 'Pompe testée'
 
 def testChlorine():
     # Valve réservoir chlore
-    gpio.setup(13, gpio.OUT)
-    gpio.output(13, True)
-    sleep(2)
+    gpio.setup(19, gpio.OUT)
+    gpio.output(19, False)
     # Pompe doseuse chlore
-    gpio.setup(17, gpio.OUT)
-    gpio.output(17, True)
-    sleep(5)
-    gpio.output(17, False)
-    gpio.output(13, False)
+    gpio.setup(26, gpio.OUT)
+    gpio.output(26, False)
+    sleep(15)
+    gpio.output(19, True)
+    gpio.output(26, True)
 
     # Moteur agitation
     gpio.setup(10, gpio.OUT)
-    pwm = gpio.PWM(10, 1)
+    pwm = gpio.PWM(10, 800)
     pwm.start(0)
     pwm.ChangeDutyCycle(50)
-    sleep(5)
+    for i in range(10):
+        #quand gpio 5 est 1 =, nous sommes en reverse
+        gpio.setup(9, gpio.OUT)
+        gpio.output(9, True)
+        sleep(.5)
+        gpio.output(9, False)
+        sleep(.5)
+       
     pwm.stop()
     gpio.output(10, False)
 
+    
     return 'Chlore testé'
 
 def testPh():
-    #Valve réservoir ph
-    gpio.setup(19, gpio.OUT)
-    gpio.output(19, True)
-    sleep(2)
+    # Valve réservoir ph
+    gpio.setup(16, gpio.OUT)
+    gpio.output(16, False)
+
     # Pompe doseuse ph
-    gpio.setup(27, gpio.OUT)
-    gpio.output(27, True)
-    sleep(5)
-    gpio.output(27, False)
-    gpio.output(19, False)
+    gpio.setup(20, gpio.OUT)
+    gpio.output(20, False)
+    sleep(15)
+    gpio.output(16, True)
+    gpio.output(20, True)
 
     # Moteur agitation
-    gpio.setup(9, gpio.OUT)
-    pwm = gpio.PWM(9, 50)
+    gpio.setup(25, gpio.OUT)
+    pwm = gpio.PWM(25, 800)
     pwm.start(0)
     pwm.ChangeDutyCycle(50)
-    sleep(5)
+    for i in range(10):
+        #quand gpio 5 est 1 =, nous sommes en reverse
+        gpio.setup(8, gpio.OUT)
+        gpio.output(8, True)
+        sleep(.5)
+        gpio.output(8, False)
+        sleep(.5)
+       
     pwm.stop()
-    gpio.output(9, False)
+    gpio.output(25, False)
 
     return 'Ph testé'
+
+def evacuationEau():
+    gpio.setup(23, gpio.OUT)
+    gpio.output(23, False)
+    gpio.setup(24, gpio.OUT)
+    gpio.output(24, False)
+    sleep(60)
+    gpio.output(23, True)
+    gpio.output(24, True)
+    
 
 def testAlcalinite():
     # Valve réservoir alcalinité
@@ -123,18 +153,80 @@ def drainage():
     gpio.output(18, False)
 
 
+def analyseImage():
+    output_directory = os.path.expanduser('~/image/')
+    os.makedirs(output_directory, exist_ok=True)
+
+    pH = 0
+    chlore = 0
+    alcalinite = 0
+    temperature = 0
+
+    #Analyse Chlore
+    for i in range(5):
+        input_filename = os.path.join(output_directory, f'new_image_{i+1}.bmp')
+        image = cv2.imread(input_filename)
+        hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+        lower = np.array([130, 50, 50])
+        upper = np.array([160, 255, 255])
+        mask = cv2.inRange(hsv, lower, upper)
+        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+        if len(contours) > 0:
+            largest_contour = max(contours, key=cv2.contourArea)
+            contour_mask = np.zeros_like(mask)
+            cv2.drawContours(contour_mask, [largest_contour], -1, 255, thickness=cv2.FILLED)
+
+            mean_color = cv2.mean(image, mask=contour_mask)
+
+            print(f"Mean color for image {i+1}: {mean_color}")
+
+            output_image = cv2.bitwise_and(image, image, mask=contour_mask)
+            output_filename = os.path.join(output_directory, f'new_image_{i+1}_output.bmp')
+            cv2.imwrite(output_filename, output_image)
+        else:
+            print(f"No contours found in image {i+1}")
+
+    #Analyse Ph
+    for i in range(5):
+        input_filename = os.path.join(output_directory, f'new_image_{i+1}.bmp')
+        image = cv2.imread(input_filename)
+        hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+        lower = np.array([130, 50, 50])
+        upper = np.array([160, 255, 255])
+        mask = cv2.inRange(hsv, lower, upper)
+        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+        if len(contours) > 0:
+            largest_contour = max(contours, key=cv2.contourArea)
+            contour_mask = np.zeros_like(mask)
+            cv2.drawContours(contour_mask, [largest_contour], -1, 255, thickness=cv2.FILLED)
+
+            mean_color = cv2.mean(image, mask=contour_mask)
+
+            print(f"Mean color for image {i+1}: {mean_color}")
+
+            output_image = cv2.bitwise_and(image, image, mask=contour_mask)
+            output_filename = os.path.join(output_directory, f'new_image_{i+1}_output.bmp')
+            cv2.imwrite(output_filename, output_image)
+        else:
+            print(f"No contours found in image {i+1}")
 
 
-
-    return '5 Images sauvegardées'
-
+        mongo.db.analyses.insert_one({'ph': pH, 'chlore': chlore, 'alcalinite': alcalinite, 'date': time(), 'temperature' : temperature})
+    
+    return mongo.db.analyses.find_one(sort=[('_id', -1)])['_id']
+    
 @bp.route('/analyse', methods=['POST'])
 def analyse():
     test = circulationPompe()
     test1 = testChlorine()
     test2 = testPh()
-    test3 = testAlcalinite()
-    result = priseImage()
+    test3 = evacuationEau()
+    
+    #test3 = testAlcalinite()
+    #result = priseImage()
+    #result = analyseImage()
 
 
 

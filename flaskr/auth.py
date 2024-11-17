@@ -1,7 +1,9 @@
 import functools
 import uuid
+import jwt
 
-from flask import (Blueprint, flash, g, redirect, render_template, request, session, url_for)
+from flask import (Blueprint, flash, g, redirect, render_template, request, session, url_for, make_response, jsonify)
+from . import secretKey
 from werkzeug.security import check_password_hash, generate_password_hash
 from . import mongo
 
@@ -62,38 +64,44 @@ def login():
         if error is None:
             session.clear()
             session['userID'] = user['userID']
-            print(session['userID'])
-            return redirect(url_for('accueil.pageAccueil'))
+            token = jwt.encode({'userID': user['userID']}, secretKey, algorithm='HS256')
+
+            response = make_response(redirect(url_for('accueil.pageAccueil')))
+            response.set_cookie('x-access-token', token, httponly=True)
+            return response
 
         flash(error)
 
     return render_template('auth/login.html')
 
-
-# avant chaque requête, on vérifie si l'utilisateur est connecté pour vérifier s'il a accès à certaines pages
-@bp.before_app_request
-def load_logged_in_user():
-    user_id = session.get('userID')
-
-    if user_id is None:
-        g.user = None
-    else:
-        g.user = mongo.db.users.find_one({'userID': user_id},{'password': 0, '_id': 0})
-
 #déconnexion de l'utilisateur
 @bp.route('/logout')
 def logout():
     session.clear()
+    
     return redirect(url_for('auth.login'))
 
 # vérifie si l'utilisateur est connecté avant d'accéder à certaines pages
 def login_required(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):
-        if g.user is None:
+        token = None
+        if 'x-access-token' in request.cookies:
+            token = request.cookies.get('x-access-token')
+
+        if not token:
             flash("Vous devez être connecté pour accéder à cette page.")
             return redirect(url_for('auth.login'))
-
+        
+        try:
+            data = jwt.decode(token, secretKey, algorithms=['HS256'])
+            current_user = mongo.db.users.find_one({'userID': data['userID']})
+            if not current_user:
+                raise Exception
+        except:
+            flash("Vous devez être connecté pour accéder à cette page.")
+            return redirect(url_for('auth.login'))
+        
         return view(**kwargs)
 
     return wrapped_view
