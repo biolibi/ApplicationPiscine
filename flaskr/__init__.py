@@ -19,7 +19,7 @@ def create_app(test_config=None):
     app.config.from_mapping(
         SECRET_KEY='sZxfx,fUHu+9fTOm~cRQh{?}b%~T8t',
     )
-    app.config["MONGO_URI"] = "mongodb://localhost:27017/APdatabase"
+    app.config["MONGO_URI"] = "mongodb://localhost:29020/APdatabase"
     mongo.init_app(app)
     bootstrap = Bootstrap5(app)
 

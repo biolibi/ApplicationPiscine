@@ -2,31 +2,30 @@
 {% block title %}Historique{% endblock %}
 {% block content %}
     <h2>Historique des analyses</h2>
-    <p>Voici la liste des analyses que vous avez effectuées.</p>
-
-    <!-- Table of analyses -->
     <table class="table table-striped">
         <thead>
             <tr>
                 <th>Date</th>
                 <th>Heure</th>
-                <th>Résultat</th>
-                <th>Action</th>
+                <th>Ph</th>
+                <th>Chlore</th>
+                <th>Alcalinité</th>
+                <th>Température</th>
             </tr>
         </thead>
         <tbody>
             {% for analyse in analyses %}
                 <tr>
-                    <td>{{ analyse.date }}</td>
-                    <td>{{ analyse.heure }}</td>
-                    <td>{{ analyse.result }}</td>
-                    <td>{{ analyse.action }}</td>
+                    <td>{{ analyse.date.strftime("%Y-%m-%d") }}</td>
+                    <td>{{ analyse.date.strftime("%H:%M:%S") }}</td>
+                    <td>{{ analyse.ph }}</td>
+                    <td>{{ analyse.chlore }}</td>
+                    <td>{{ analyse.alcalinite }}</td>
+                    <td>{{ analyse.temperature }}</td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
-
-    <!-- Pagination Controls -->
     <nav aria-label="Page navigation">
         <ul class="pagination">
             {% if page > 1 %}
@@ -41,7 +40,6 @@
                 </li>
             {% endif %}
 
-            <!-- Page Number Controls -->
             <li class="page-item disabled">
                 <span class="page-link">Page {{ page }}</span>
             </li>

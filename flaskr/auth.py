@@ -115,7 +115,12 @@ def login():
         if error is None:
             session.clear()
             session['userID'] = user['userID']
-            token = jwt.encode({'userID': user['userID']}, secretKey, algorithm='HS256')
+            
+            sessionID = uuid.uuid4()
+            mongo.db.users.update_one({'userID': user['userID']}, {'$set': {'sessionID': str(sessionID)}})
+            user['sessionID'] = str(sessionID)
+            
+            token = jwt.encode({'sessionID': user['sessionID']}, secretKey, algorithm='HS256')
 
             response = make_response(redirect(url_for('accueil.pageAccueil')))
             response.set_cookie('x-access-token', token, httponly=True)
@@ -128,8 +133,9 @@ def login():
 #déconnexion de l'utilisateur
 @bp.route('/logout')
 def logout():
+    mongo.db.users.update_one({'userID': session['userID']}, {'$set': {'sessionID': None}})
     session.clear()
-    
+
     return redirect(url_for('auth.login'))
 
 # vérifie si l'utilisateur est connecté avant d'accéder à certaines pages
@@ -146,7 +152,7 @@ def login_required(view):
         
         try:
             data = jwt.decode(token, secretKey, algorithms=['HS256'])
-            current_user = mongo.db.users.find_one({'userID': data['userID']})
+            current_user = mongo.db.users.find_one({'sessionID': data['sessionID']})
             if not current_user:
                 raise Exception
         except:
