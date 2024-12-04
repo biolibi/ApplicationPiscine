@@ -95,7 +95,14 @@ def login():
             if error is None:
                 session.clear()
                 session['userID'] = user['userID']
-                return jsonify({"message": "Connexion réussie!"}), 200
+                sessionID = uuid.uuid4()
+                mongo.db.users.update_one({'userID': user['userID']}, {'$set': {'sessionID': str(sessionID)}})
+                user['sessionID'] = str(sessionID)
+                token = jwt.encode({'sessionID': user['sessionID']}, secretKey, algorithm='HS256')
+                response = jsonify({"message": "Successfully connected",'token' :token}) 
+                response.status_code = 200
+                response.set_cookie('x-access-token', token, httponly=True)
+                return response
             else:
 
                 return jsonify({'error': error}),401
