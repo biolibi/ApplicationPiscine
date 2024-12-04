@@ -1,5 +1,5 @@
 import subprocess, os
-from flask import Blueprint, Response, render_template, url_for, Flask
+from flask import Blueprint, Response, jsonify, render_template, request, url_for, Flask
 
 bp = Blueprint('stream', __name__, url_prefix='/accueil/stream')
 app = Flask(__name__)
@@ -21,5 +21,8 @@ def view():
     #display the image
     save_image()
     image_path = url_for('static', filename='images/image.jpg')
-    return render_template('stream/view.html', image_path=image_path)
+    if request.is_json:
+        return jsonify({"message": image_path}), 200
+    else:
+        return render_template('stream/view.html', image_path=image_path)
     
