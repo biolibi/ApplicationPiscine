@@ -13,6 +13,7 @@ import RPi.GPIO as GPIO
 mongo = PyMongo()
 gpio = GPIO
 gpio.setmode(GPIO.BCM)
+#TODO: Changer lorsque le repos redevient privé
 secretKey = 'sZxfx,fUHu+9fTOm~cRQh{?}b%~T8t'
 delayAnalyse = 0
 

@@ -322,7 +322,7 @@ def analyseImage():
     
     return mongo.db.analyses.find_one(sort=[('_id', -1)])['_id']
     
-@bp.route('/analyse', methods=['POST'])
+@bp.route('/analyses', methods=['POST'])
 @login_required
 def analyse():
     global delayAnalyse
@@ -333,16 +333,16 @@ def analyse():
     #configurationInitial()
     
     
-    test1 = testChlorine()
-    test2 = testPh()
-    test = circulationPompe()
+    #test1 = testChlorine()
+    #test2 = testPh()
+    #test = circulationPompe()
     melange1 = melange()
-    result = priseImage()
+    #result = priseImage()
 
-    test4 = rincage()
+    #test4 = rincage()
     #test3 = testAlcalinite()
     
-    result1 = analyseImage()
+    #result1 = analyseImage()
 
     #evacuer l'eau (sans les autres systemes)
     #test3 = evacuationEau()

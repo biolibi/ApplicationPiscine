@@ -20,8 +20,8 @@ def save_image():
 def view():
     #display the image
     save_image()
-    image_path = url_for('static', filename='images/image.jpg')
-    if request.is_json:
+    image_path = url_for('static', filename='images/image.jpg', _external=True)
+    if 'application/json' in request.headers.get('Accept',''):
         return jsonify({"message": image_path}), 200
     else:
         return render_template('stream/view.html', image_path=image_path)
