@@ -1,8 +1,6 @@
 {% extends "baseBootstrap.html" %}
 {% block title %}Analyse{% endblock %}
 
-# make a button that can be clicked to start the analysis and call a function in testAnalyse.py
-
 {% block content %}
     <h2>Test d'analyse</h2>
     <p>Appuyez sur le bouton pour lancer l'analyse.</p>
@@ -11,7 +9,7 @@
 
     <script>
         function startAnalysis() {
-            fetch('/accueil/test/analyse', {
+            fetch('/accueil/test/analyses', {
                 method: 'POST'
             })
             .then(response => response.json())
@@ -20,7 +18,7 @@
             })
             .catch(error => {
                 console.error('Error:', error);
-                document.getElementById('response-message').innerText = 'An error occurred.';
+                document.getElementById('response-message').innerText = 'Une erreur est survenue';
             });
         }
     </script>

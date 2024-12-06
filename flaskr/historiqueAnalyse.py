@@ -1,5 +1,5 @@
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, session, url_for
+    Blueprint, flash, g, jsonify, redirect, render_template, request, session, url_for
 )
 
 from flaskr.auth import login_required
@@ -19,6 +19,8 @@ def getHistorique(page, limit):
 @bp.route('', methods=['GET'])
 @login_required
 def pageHistorique():
+
+    
     # default value
     page = int(request.args.get('page', 1))
     limit = int(request.args.get('limit', 10))
@@ -31,5 +33,8 @@ def pageHistorique():
     else:
         has_more = False
 
-    return render_template('analyse/historiqueAnalyse.html', analyses=analyses, page=page, limit=limit,
+    if request.is_json:
+        return jsonify({"message": analyses}), 200
+    else:
+        return render_template('analyse/historiqueAnalyse.html', analyses=analyses, page=page, limit=limit,
                            has_more=has_more)

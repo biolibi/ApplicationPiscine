@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}{% endblock %} - Flaskr</title>
+    <title>{% block title %}{% endblock %} - Application Piscine</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 <nav>
-  <h1>Flaskr</h1>
+  <h1 style="color: #212121;">Application Piscine</h1>
   <ul>
     {% if g.user %}
       <li><span>Bonjour {{ g.user['username'] }}</span>

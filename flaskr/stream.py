@@ -1,38 +1,28 @@
-import subprocess
-from flask import Blueprint, Response
+import subprocess, os
+from flask import Blueprint, Response, jsonify, render_template, request, url_for, Flask
 
 bp = Blueprint('stream', __name__, url_prefix='/accueil/stream')
+app = Flask(__name__)
 
-def generate_stream():
-    # Start the subprocess to get the video stream
-    process = subprocess.Popen(['rpicam-vid', '--width', '640', '--height', '480', '--framerate', '30'], 
-                               stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+def save_image():
+    output_directory = os.path.join(app.static_folder, 'images')
+    os.makedirs(output_directory, exist_ok=True)
+    output_filename = os.path.join(output_directory, 'image.jpg')
+    command = ['rpicam-still', '-o', output_filename, '-t', '1000']
 
-    while True:
-        frame = process.stdout.readline()
-        if not frame:
-            break
-        yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+    try:
+        subprocess.run(command, check=True)
+        print(f"Image saved as {output_filename}")
+    except subprocess.CalledProcessError as e:
+        print(f"Error taking picture: {e}")
 
-@bp.route('/', methods=('GET', 'POST'))
-def stream():
-    return Response(generate_stream(), mimetype='multipart/x-mixed-replace; boundary=frame')
-
-
-@bp.route('/view', methods=['GET'])
+@bp.route('', methods=['GET'])
 def view():
-    return """
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Video Stream</title>
-    </head>
-    <body>
-        <h1>Live Video Stream</h1>
-        <img src="/accueil/stream/" alt="Video Stream">
-    </body>
-    </html>
-    """
+    #display the image
+    save_image()
+    image_path = url_for('static', filename='images/image.jpg', _external=True)
+    if 'application/json' in request.headers.get('Accept',''):
+        return jsonify({"message": image_path}), 200
+    else:
+        return render_template('stream/view.html', image_path=image_path)
+    
